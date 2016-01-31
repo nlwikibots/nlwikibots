@@ -5,3 +5,5 @@ Het doel is dat zulke bots niet meer per se door één persoon onderhouden moete
 Voor meer informatie: zie https://nl.wikipedia.org/wiki/Wikipedia:Nlwikibots
 
 De gebruikte licenties variëren, maar zijn in het algemeen MIT of CC-BY-SA.
+
+De code in dit repository komt deels uit https://phabricator.wikimedia.org/diffusion/TSVN/browse/erwin85/trunk/ en https://github.com/valhallasw/tvpupdater
