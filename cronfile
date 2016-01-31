@@ -1,0 +1,15 @@
+#
+# Dit bestand bevat de cron-configuratie voor dit account. Bewerk dus dit
+# bestand en laad die vervolgens in in crontab:
+# $ crontab cronfile
+#
+## min hour day-of-month month day-of-week
+# archivering / erwin85
+30 6,18 * * * qsub $HOME/bin/archivering > $HOME/log/cron/archivering
+# tvpmelder / erwin85
+00 0 * * * qsub $HOME/bin/tvpmelder > $HOME/log/cron/tvpmelder
+# dplinks / erwin85
+00 3 * * 1,3,5 qsub $HOME/bin/dab > $HOME/log/cron/dab
+00 5 * * 1,3,5 qsub $HOME/bin/dplinks > $HOME/log/cron/dplinks
+# tvp-updater / valhallasw
+0 * * * * qsub $HOME/bin/tvpupdater > $HOME/log/cron/tvpupdater

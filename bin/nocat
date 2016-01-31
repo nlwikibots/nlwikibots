@@ -1,0 +1,3 @@
+#!/bin/bash
+cd ~/bots/nocat
+python nocat.py 2>&1 >> ~/log/nocat/`date +%Y%m%d`.log
