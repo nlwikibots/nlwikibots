@@ -296,13 +296,13 @@ class AfDBot:
                     if result:
                         wikipedia.output(u'* [[%s]]: Found link in database.' % page_title)
                         continue
-                else:
-                    if re.search(r'\[\[\:{0,1}%s(?:.*?|)\]\]' % re.escape(page_title).replace('\\ ', '[_ ]'), original_text):
-                        wikipedia.output(u'* [[%s]]: Found a link in text. Ignoring.' % page_title)
-                        continue
-                    elif re.search(r'\{\{vvn\|%s.*?\}\}' % re.escape(page_title).replace('\\ ', '[_ ]'), original_text):
-                        wikipedia.output(u'* [[%s]]: {{vvn}} found.' % page_title)
-                        continue
+                    
+                if re.search(r'\[\[\:{0,1}%s(?:.*?|)\]\]' % re.escape(page_title).replace('\\ ', '[_ ]'), original_text):
+                    wikipedia.output(u'* [[%s]]: Found a link in text. Ignoring.' % page_title)
+                    continue
+                elif re.search(r'\{\{vvn\|%s.*?\}\}' % re.escape(page_title).replace('\\ ', '[_ ]'), original_text):
+                    wikipedia.output(u'* [[%s]]: {{vvn}} found.' % page_title)
+                    continue
 
                 wikipedia.output(u'* [[%s]]: Leaving message.' % page_title)
                 afds.append((page_title, nominator))
