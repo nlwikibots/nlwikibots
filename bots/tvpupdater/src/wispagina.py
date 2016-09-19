@@ -10,7 +10,7 @@ import time, datetime
 if time.localtime()[3] == 0 or (len(sys.argv) == 2 and sys.argv[1] == "-force"):
   import pywikibot as wikipedia
   import socket 
-  wikipedia.setAction(u'Verwijderlijstupdater van [[Project:nlwikibots]] @ %s' % socket.getfqdn())
+  wikipedia.setAction(u'Beoordelingslijstupdater van [[Project:nlwikibots]] @ %s' % socket.getfqdn())
   
   now = datetime.datetime(*time.localtime()[0:5])
   intwoweeks = now + datetime.timedelta(weeks=2)
@@ -46,7 +46,7 @@ if time.localtime()[3] == 0 or (len(sys.argv) == 2 and sys.argv[1] == "-force"):
     delen = mpInhoud.split("<!-- EINDE QUEUE -->")
     mpInhoud = delen[0] + "<!-- {{"+pagename+"}} -->\n<!-- EINDE QUEUE -->" + delen[1]
   
-  mainpage.put(mpInhoud)
+  mainpage.put(mpInhoud, botflag=False)
 
 
 

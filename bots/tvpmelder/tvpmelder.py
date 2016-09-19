@@ -350,7 +350,7 @@ class AfDBot:
                 if choice == 'y':
                     try:
                         # Save the page
-                        page.put(text, comment = comment, minorEdit = False)
+                        page.put(text, comment = comment, minorEdit = False, botflag = False)
                     except wikipedia.LockedPage:
                         wikipedia.output(u"Page %s is locked; skipping." % page.aslink())
                     except wikipedia.EditConflict:
