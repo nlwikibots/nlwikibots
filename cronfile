@@ -3,6 +3,9 @@
 # bestand en laad die vervolgens in in crontab:
 # $ crontab cronfile
 #
+
+TZ='Europe/Amsterdam'
+
 ## min hour day-of-month month day-of-week
 # archivering / erwin85
 30 6,18 * * * qsub $HOME/bin/archivering > $HOME/log/cron/archivering
