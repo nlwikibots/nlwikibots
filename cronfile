@@ -8,10 +8,10 @@ TZ='Europe/Amsterdam'
 
 ## min hour day-of-month month day-of-week
 # archivering / erwin85
-30 6,18 * * * jsub -l release=trusty $HOME/bin/archivering > $HOME/log/cron/archivering
+30 6,18 * * * qsub $HOME/bin/archivering > $HOME/log/cron/archivering
 # tvpmelder / erwin85
-00 0 * * * jsub -l release=trusty $HOME/bin/tvpmelder > $HOME/log/cron/tvpmelder
+00 0 * * * qsub $HOME/bin/tvpmelder > $HOME/log/cron/tvpmelder
 # dplinks / erwin85
-00 5 * * 1,3,5 jsub -l release=trusty jsub $HOME/bin/dplinks > $HOME/log/cron/dplinks
+00 5 * * 1,3,5 qsub jsub $HOME/bin/dplinks > $HOME/log/cron/dplinks
 # tvp-updater / valhallasw
-0 * * * * jsub -l release=trusty $HOME/bin/tvpupdater > $HOME/log/cron/tvpupdater
+0 * * * * qsub $HOME/bin/tvpupdater > $HOME/log/cron/tvpupdater

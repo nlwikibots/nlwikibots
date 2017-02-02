@@ -1,7 +1,7 @@
 #!/bin/bash
 #$ -l h_rt=0:30:00  # max runtime
 #$ -l h_vmem=350M # max memory use, including shared libs, Tools Labs
-#$ -l arch=* # mag op zowel linux als solaris
+#$ -l release=trusty # draai op trusty hosts
 #$ -N archivering-erwin85 # naam van taak, eindigt in naam eigenaar
 #$ -M valhallasw@arctus.nl
 #$ -m a # ik word gemaild bij een abort (vanwege bv. runtime-overschrijding)
