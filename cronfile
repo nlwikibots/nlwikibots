@@ -12,6 +12,6 @@ TZ='Europe/Amsterdam'
 # tvpmelder / erwin85
 00 0 * * * jsub -l release=trusty $HOME/bin/tvpmelder > $HOME/log/cron/tvpmelder
 # dplinks / erwin85
-00 5 * * 1,3,5 -l release=trusty jsub $HOME/bin/dplinks > $HOME/log/cron/dplinks
+00 5 * * 1,3,5 jsub -l release=trusty jsub $HOME/bin/dplinks > $HOME/log/cron/dplinks
 # tvp-updater / valhallasw
 0 * * * * jsub -l release=trusty $HOME/bin/tvpupdater > $HOME/log/cron/tvpupdater
