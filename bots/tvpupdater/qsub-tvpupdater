@@ -2,7 +2,7 @@
 #$ -l h_rt=0:30:00  # max runtime
 #$ -l virtual_free=25M # max memory use, excluding shared libs, toolserver
 #$ -l h_vmem=256M # max memory use, including shared libs, Tools Labs
-#$ -l release=precise # draai op trusty hosts
+#$ -l release=trusty # draai op trusty hosts
 #$ -N tvpupdater-valhallasw # naam van taak, eindigt in naam eigenaar
 #$ -M valhallasw@arctus.nl
 #$ -m a # alleen mails bij een abort (vanwege bv. runtime-overschrijding)
