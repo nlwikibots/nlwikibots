@@ -19,12 +19,10 @@ You can run the bot with the following commandline parameters:
 #
 # Distributed under the terms of the CC-BY-SA 2.5 licence.
 #
-from __future__ import division
-import sys, os
-sys.path.append(os.environ['HOME'] + "/trunk")
 
 import re, time, datetime, string
-import wikipedia, pagegenerators, config
+import pywikibot
+from pywikibot import pagegenerators
 
 class ArchivingRobot:
     """
@@ -188,31 +186,31 @@ class ArchivingRobot:
         # Run the generator which will yield Pages which might need to be
         # changed.  
         for page in self.generator:
-            wikipedia.output(u'\n>>> %s <<<' % page.title())
+            pywikibot.output(u'\n>>> %s <<<' % page.title())
             #Current time
             sectiont0 = time.time()
             try:
                 # Load the page's text from the wiki.
                 original_text = page.get()
                 if not page.canBeEdited():
-                    wikipedia.output(u'Pagina %s wordt overgeslagen, deze pagina is beveiligd.' % page.title())
+                    pywikibot.output(u'Pagina %s wordt overgeslagen, deze pagina is beveiligd.' % page.title())
                     continue
             #No page, so ignore   
-            except wikipedia.NoPage:
-                wikipedia.output(u'Pagina %s bestaat niet.' % page.title())
+            except pywikibot.NoPage:
+                pywikibot.output(u'Pagina %s bestaat niet.' % page.title())
                 continue
             #Get the archiving settings.
             settings = self.loadConfig(original_text)
 
             #No settings were found, leave a message on the page.
             if not settings:
-                wikipedia.output(u'Er kunnen geen instellingen worden gevonden op %s. Er wordt een bericht achtergelaten.' % page.title())
+                pywikibot.output(u'Er kunnen geen instellingen worden gevonden op %s. Er wordt een bericht achtergelaten.' % page.title())
                 page.put(original_text + self.nosettingscomment, self.commentsummary, minorEdit = False)                
                 continue
 
             #Incorrect magicwords settings were found, leave a message on the page.
             if not self.settings['magicwords'] == u'oudste' and not self.settings['magicwords'] == u'recentste':
-                wikipedia.output(u'Pagina %s wordt overgeslagen, er zijn geen of foute magicwords instellingen opgegeven, opgegeven was %s. Er wordt een bericht achtergelaten.' % (page.title(), self.settings['magicwords']))
+                pywikibot.output(u'Pagina %s wordt overgeslagen, er zijn geen of foute magicwords instellingen opgegeven, opgegeven was %s. Er wordt een bericht achtergelaten.' % (page.title(), self.settings['magicwords']))
                 page.put(original_text + self.nomagicwordscomment, self.commentsummary, minorEdit = False)  
                 continue
 
@@ -271,18 +269,18 @@ class ArchivingRobot:
                         try:
                             datedt = datetime.datetime(int(datematch.group(3)),self.monthn[datematch.group(2)],int(datematch.group(1)),int(datematch.group(4)),int(datematch.group(5)))
                         except:
-                            wikipedia.output(u'Could not create a datetime object, skipping date')
+                            pywikibot.output(u'Could not create a datetime object, skipping date')
                             continue
                         datesdt.append(datedt)
                         differencedt = todaydt - datedt
                         differences[j] = differencedt.days * 86400 + differencedt.seconds
                         j += 1
                         
-                    try:					
+                    try:
                         diferences_sortedkeys = self.sort_by_value(differences)
                         difference = todaydt - datesdt[diferences_sortedkeys[0]]      
                     except:
-                        wikipedia.output(u'Could not get the difference, probably because of skipping a date.')
+                        pywikibot.output(u'Could not get the difference, probably because of skipping a date.')
                         #Add daylight saving time
                         if time.daylight == 1:
                             dst = 'CEST'
@@ -303,7 +301,7 @@ class ArchivingRobot:
                         numberofsections += 1
 
                         #Add the text and number of sections to the corresponding dictionaries.
-                        if archives_dictionary.has_key(archive_title):
+                        if archive_title in archives_dictionary:
                             archives_dictionary[archive_title] += sections[i-1] + section_text
                             nos_dictionary[archive_title] += 1
                         else:
@@ -333,17 +331,17 @@ class ArchivingRobot:
             
             if not original_text == new_text:
                 if page.isRedirectPage() or not page.canBeEdited():
-                    wikipedia.output(u'Can not edit %s. Aborting.' % page.title())
+                    pywikibot.output(u'Can not edit %s. Aborting.' % page.title())
                     continue
                 abort = False
                 for title in archives_dictionary.keys():
-                    ap = wikipedia.Page(self.site, title)
-                    if ap.isRedirectPage() or not ap.canBeEdited():
-                        wikipedia.output(u'Can not edit %s. Aborting.' % ap.title())
+                    ap = pywikibot.Page(self.site, title)
+                    if ap.exists() and (ap.isRedirectPage() or not ap.canBeEdited()):
+                        pywikibot.output(u'Can not edit %s. Aborting.' % ap.title())
                         try:
                             page.put(page.get() + self.cantedit % ap.title(), self.canteditsummary, minorEdit = False)
-                        except wikipedia.EditConflict:
-                            wikipedia.output(u'Pagina %s wordt overgeslagen vanwege een bewerkingsconflict.' % (page.title()))
+                        except pywikibot.EditConflict:
+                            pywikibot.output(u'Pagina %s wordt overgeslagen vanwege een bewerkingsconflict.' % (page.title()))
                         abort = True
                         break
                 
@@ -353,52 +351,52 @@ class ArchivingRobot:
             if not original_text == new_text:
                 diff = len(original_text) - len(new_text)
                 reduction = (diff/len(original_text))*100
-                wikipedia.output(u'Er worden %d onderwerpen gearchiveerd ouder dan %d dagen. In totaal worden %d tekens aangepast, een reductie van %d procent.' % (numberofsections, self.settings['dagen'], diff, reduction))
-                wikipedia.output(u'Deze onderwerpen worden gearchiveerd naar %d verschillende archiefpagina\'s.' % (len(archives_dictionary)))
+                pywikibot.output(u'Er worden %d onderwerpen gearchiveerd ouder dan %d dagen. In totaal worden %d tekens aangepast, een reductie van %d procent.' % (numberofsections, self.settings['dagen'], diff, reduction))
+                pywikibot.output(u'Deze onderwerpen worden gearchiveerd naar %d verschillende archiefpagina\'s.' % (len(archives_dictionary)))
 
                 if not self.acceptall:
 
-                    cview = wikipedia.inputChoice(u'Wilt u deze wijzigingen bekijken?',  ['Yes', 'No'], ['y', 'N'], 'N')
+                    cview = pywikibot.inputChoice(u'Wilt u deze wijzigingen bekijken?',  ['Yes', 'No'], ['y', 'N'], 'N')
 
                     if cview in ['y', 'Y']:
-                        wikipedia.showDiff(original_text, new_text)
+                        pywikibot.showDiff(original_text, new_text)
 
-                    choice = wikipedia.inputChoice(u'Wilt u deze wijzigingen doorvoeren?',  ['Yes', 'No', 'All'], ['y', 'N', 'a'], 'N')
+                    choice = pywikibot.inputChoice(u'Wilt u deze wijzigingen doorvoeren?',  ['Yes', 'No', 'All'], ['y', 'N', 'a'], 'N')
                     if choice in ['a', 'A']:
                         self.acceptall = True
 
                 #Archive the page.
                 if self.acceptall or choice in ['y', 'Y']:
                     if numberofsections:
-                        wikipedia.setAction('nlwikibots: [[Gebruiker:Erwin85/Bot/Archivering|Archivering]] van %i %s ouder dan %i dagen naar %s.' % (numberofsections, self.plural(numberofsections, 'onderwerp', 'onderwerpen'), self.settings['dagen'], archive_target))
+                        pywikibot.setAction('nlwikibots: [[Gebruiker:Erwin85/Bot/Archivering|Archivering]] van %i %s ouder dan %i dagen naar %s.' % (numberofsections, self.plural(numberofsections, 'onderwerp', 'onderwerpen'), self.settings['dagen'], archive_target))
                     else:
-                        wikipedia.setAction('nlwikibots: Datum toegevoegd in verband met [[Gebruiker:Erwin85/Bot/Archivering|archivering]].')
+                        pywikibot.setAction('nlwikibots: Datum toegevoegd in verband met [[Gebruiker:Erwin85/Bot/Archivering|archivering]].')
 
                     try:
                         page.put(new_text)
-                    except wikipedia.EditConflict:
-                        wikipedia.output(u'Pagina %s wordt overgeslagen vanwege een bewerkingsconflict.' % (page.title()), toStdout = True)
+                    except pywikibot.EditConflict:
+                        pywikibot.output(u'Pagina %s wordt overgeslagen vanwege een bewerkingsconflict.' % (page.title()), toStdout = True)
                         continue
-                    except wikipedia.LockedPage:
-                        wikipedia.output(u'Pagina %s is beveiligd.' % (page.title()), toStdout = True)
+                    except pywikibot.LockedPage:
+                        pywikibot.output(u'Pagina %s is beveiligd.' % (page.title()), toStdout = True)
                         continue
                                        
                     for archive_title, archivetext in archives_dictionary.items():
                         redirect = False
                         if numberofsections:
-                            wikipedia.setAction('nlwikibots: [[Gebruiker:Erwin85/Bot/Archivering|Archivering]] van %i %s ouder dan %i dagen van [[%s]].' % (nos_dictionary[archive_title], self.plural(nos_dictionary[archive_title], 'onderwerp', 'onderwerpen'), self.settings['dagen'], page.title()))
+                            pywikibot.setAction('nlwikibots: [[Gebruiker:Erwin85/Bot/Archivering|Archivering]] van %i %s ouder dan %i dagen van [[%s]].' % (nos_dictionary[archive_title], self.plural(nos_dictionary[archive_title], 'onderwerp', 'onderwerpen'), self.settings['dagen'], page.title()))
                         try:
-                            archivepage = wikipedia.Page(self.site, archive_title)
+                            archivepage = pywikibot.Page(self.site, archive_title)
                             # Load the page's text from the wiki
                             original_archivetext = archivepage.get()
                             if not page.canBeEdited():
-                                wikipedia.output(u'Pagina %s wordt overgeslagen, deze pagina is beveiligd.' % archive_title)
+                                pywikibot.output(u'Pagina %s wordt overgeslagen, deze pagina is beveiligd.' % archive_title)
                                 continue
-                        except wikipedia.NoPage:
-                            wikipedia.output(u'Pagina %s bestaat niet.' % archive_title)
+                        except pywikibot.NoPage:
+                            pywikibot.output(u'Pagina %s bestaat niet.' % archive_title)
                             original_archivetext = ''
-                        except wikipedia.IsRedirectPage:
-                            wikipedia.output(u'Pagina %s is een doorverwijzing.' % archive_title)
+                        except pywikibot.IsRedirectPage:
+                            pywikibot.output(u'Pagina %s is een doorverwijzing.' % archive_title)
                             redirect = True
                         if not redirect:
                             if original_archivetext:
@@ -409,27 +407,26 @@ class ArchivingRobot:
 
                             try:
                                 archivepage.put(archivetext)
-                            except wikipedia.EditConflict:
-                                wikipedia.output(u'Pagina %s wordt overgeslagen vanwege een bewerkingsconflict.' % (archive_title))
+                            except pywikibot.EditConflict:
+                                pywikibot.output(u'Pagina %s wordt overgeslagen vanwege een bewerkingsconflict.' % (archive_title))
                             
                         else:
-                            wikipedia.output(u'Leaving message informing that archive page is a redirect.')
+                            pywikibot.output(u'Leaving message informing that archive page is a redirect.')
                             try:
                                 page.put(page.get() + self.cantedit % archive_title, self.canteditsummary, minorEdit = False)
-                            except wikipedia.EditConflict:
-                                wikipedia.output(u'Pagina %s wordt overgeslagen vanwege een bewerkingsconflict.' % (page.title()))
-		    
-	    else:
+                            except pywikibot.EditConflict:
+                                pywikibot.output(u'Pagina %s wordt overgeslagen vanwege een bewerkingsconflict.' % (page.title()))
+            else:
                 #No need for archiving.
-                wikipedia.output(u'Archivering is niet nodig.')
+                pywikibot.output(u'Archivering is niet nodig.')
 
             #Execution time for this section.
             sectiontimediff = time.time() - sectiont0
-            wikipedia.output(u'Executiontime: %ss.' % str(sectiontimediff))
+            pywikibot.output(u'Executiontime: %ss.' % str(sectiontimediff))
        
         #Total execution time.
         timediff = time.time() - self.t0
-        wikipedia.output(u'Total executiontime: %ss.' % str(timediff))
+        pywikibot.output(u'Total executiontime: %ss.' % str(timediff))
         
 def main():
     gen = None
@@ -443,7 +440,7 @@ def main():
                         'wikipedia' : {'nl' : 'Gebruiker:Erwin/Bot/Archiveerlinks'},
                         'wikisource' : {'nl' : 'Gebruiker:Erwin85/Bot/Archiveerlinks'}
                         }
-    for arg in wikipedia.handleArgs():
+    for arg in pywikibot.handleArgs():
         if arg == '-always':
             acceptall = True
 
@@ -451,31 +448,31 @@ def main():
         #Use: -project:family:code
         elif arg.startswith('-project'):
             if len(arg) == 8:
-                project = [wikipedia.input(u'Family?'), wikipedia.input(u'Code?')]
+                project = [pywikibot.input(u'Family?'), pywikibot.input(u'Code?')]
             else:
                 project = re.split(r'\:', arg[9:])
             projects = {project[0] : [project[1]]}
         elif arg == '-test':
             test = True
-            wikipedia.output(u'Using test settings.')
+            pywikibot.output(u'Using test settings.')
             projects = {'wikipedia' : ['nl']}
 
-    for family, langs in projects.iteritems():
+    for family, langs in projects.items():
         for lang in langs:
             if not test:
                 linkingPageTitle = linkingPageTitles[family][lang]
             else:
                 linkingPageTitle = 'Gebruiker:Erwin/Bot/Archiveerlinkstest'
 
-            wikipedia.output(u'\n>> %s:%s<<\n' % (family, lang))
-            referredPage = wikipedia.Page(wikipedia.getSite(code = lang, fam = family), linkingPageTitle)
+            pywikibot.output(u'\n>> %s:%s<<\n' % (family, lang))
+            referredPage = pywikibot.Page(pywikibot.getSite(code = lang, fam = family), linkingPageTitle)
             gen = pagegenerators.ReferringPageGenerator(referredPage)
             preloadingGen = pagegenerators.PreloadingGenerator(gen, pageNumber = 40)
-            bot = ArchivingRobot(preloadingGen, time.time(), wikipedia.getSite(code = lang, fam = family), linkingPageTitle, acceptall)
+            bot = ArchivingRobot(preloadingGen, time.time(), pywikibot.getSite(code = lang, fam = family), linkingPageTitle, acceptall)
             bot.run()
     
 if __name__ == "__main__":
     try:
         main()
     finally:
-        wikipedia.stopme()
+        pywikibot.stopme()

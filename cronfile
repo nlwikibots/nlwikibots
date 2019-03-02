@@ -7,7 +7,5 @@
 TZ='Europe/Amsterdam'
 
 ## min hour day-of-month month day-of-week
-# archivering / erwin85
-30 6,18 * * * qsub $HOME/bin/archivering > $HOME/log/cron/archivering
 # tvpmelder / erwin85
 00 0 * * * qsub $HOME/bin/tvpmelder > $HOME/log/cron/tvpmelder

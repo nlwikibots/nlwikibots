@@ -29,3 +29,4 @@
 # m	h	dom	mon	dow	command
 0,15,34,45 *	*	*	*	jsub -N potd-rotate $HOME/bin/potd-rotate > $HOME/log/cron/potd-rotate
 0       *       *       *       *       jsub -N tvpupdater -once /data/project/nlwikibots/venv-py35-stretch/bin/python /data/project/nlwikibots/bots/tvpupdater/wispagina.py > $HOME/log/cron/tvpupdater
+30      6,18    *       *       *       jsub -N archivering -once /data/project/nlwikibots/venv-py35-stretch/bin/python /data/project/nlwikibots/bots/archivering/archivering.py > $HOME/log/cron/archivering
