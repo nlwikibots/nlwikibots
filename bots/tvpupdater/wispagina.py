@@ -8,9 +8,10 @@ os.environ['TZ'] = 'Europe/Amsterdam'
 
 import time, datetime
 if time.localtime()[3] == 0 or (len(sys.argv) == 2 and sys.argv[1] == "-force"):
-  import pywikibot as wikipedia
+  import pywikibot
   import socket 
-  wikipedia.setAction(u'Beoordelingslijstupdater van [[Project:nlwikibots]] @ %s' % socket.getfqdn())
+  summary = u'Beoordelingslijstupdater van [[Project:nlwikibots]] @ %s' % socket.getfqdn()
+  site = pywikibot.Site('nl', 'wikipedia')
   
   now = datetime.datetime(*time.localtime()[0:5])
   intwoweeks = now + datetime.timedelta(weeks=2)
@@ -18,12 +19,13 @@ if time.localtime()[3] == 0 or (len(sys.argv) == 2 and sys.argv[1] == "-force"):
   pagename = now.strftime("Wikipedia:Te beoordelen pagina's/Toegevoegd %Y%m%d")
   inhoud = now.strftime("{{subst:Te beoordelen pagina's nieuwe dag|dag=%Y%m%d}}") 
  
-  P = wikipedia.Page(wikipedia.getSite(u'nl'), pagename)
+  P = pywikibot.Page(site, pagename)
   if not P.exists():          # als 'ie bestaat doe ik lekker niks ;)
-    P.put(inhoud)
+    P.text = inhoud
+    P.save(summary=summary)
     
-  mainpage = wikipedia.Page(wikipedia.getSite(u'nl'), "Wikipedia:Te beoordelen pagina's")
-  mpInhoud = mainpage.get()
+  mainpage = pywikibot.Page(site, "Wikipedia:Te beoordelen pagina's")
+  mpInhoud = mainpage.text
   
   if not P in mainpage.templates():
     mpInhoud = "".join(mpInhoud.split("<!-- {{"+pagename+"}} -->\n"))
@@ -38,15 +40,17 @@ if time.localtime()[3] == 0 or (len(sys.argv) == 2 and sys.argv[1] == "-force"):
   pagename = dan.strftime("Wikipedia:Te beoordelen pagina's/Toegevoegd %Y%m%d")
   inhoud = dan.strftime("{{subst:Te beoordelen pagina's nieuwe dag|dag=%Y%m%d}}") 
 
-  P = wikipedia.Page(wikipedia.getSite(u'nl'), pagename)
+  P = pywikibot.Page(site, pagename)
   if not P.exists():          # als 'ie bestaat doe ik lekker niks ;)
-    P.put(inhoud)
+    P.text = inhoud
+    P.save(summary=summary)
 
   if P.title() not in mpInhoud:
     delen = mpInhoud.split("<!-- EINDE QUEUE -->")
     mpInhoud = delen[0] + "<!-- {{"+pagename+"}} -->\n<!-- EINDE QUEUE -->" + delen[1]
-  
-  mainpage.put(mpInhoud, botflag=False)
+
+  mainpage.text = mpInhoud
+  mainpage.save(summary=summary, botflag=False)
 
 
 
